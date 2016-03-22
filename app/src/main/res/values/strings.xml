@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">Flores</string>
+    <string name="action_settings">Settings</string>
+    <string name="edit_message">Tome un foto por favor</string>
+    <string name="button_send">FOTO</string>
+    <string name="title_activity_usos">Usos</string>
+    <string name="text_subrayado"><u>Usos</u></string>
+
+</resources>

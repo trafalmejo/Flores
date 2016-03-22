@@ -1,0 +1,1672 @@
+Index: app/src/androidTest/java/com/example/danielcastano/flores/ApplicationTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/androidTest/java/com/example/danielcastano/flores/ApplicationTest.java	(revision )
++++ app/src/androidTest/java/com/example/danielcastano/flores/ApplicationTest.java	(revision )
+@@ -0,0 +1,13 @@
++package com.example.danielcastano.flores;
++
++import android.app.Application;
++import android.test.ApplicationTestCase;
++
++/**
++ * <a href="http://d.android.com/tools/testing/testing_android.html">Testing Fundamentals</a>
++ */
++public class ApplicationTest extends ApplicationTestCase<Application> {
++    public ApplicationTest() {
++        super(Application.class);
++    }
++}
+\ No newline at end of file
+Index: app/src/test/java/com/example/danielcastano/flores/ExampleUnitTest.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/test/java/com/example/danielcastano/flores/ExampleUnitTest.java	(revision )
++++ app/src/test/java/com/example/danielcastano/flores/ExampleUnitTest.java	(revision )
+@@ -0,0 +1,15 @@
++package com.example.danielcastano.flores;
++
++import org.junit.Test;
++
++import static org.junit.Assert.*;
++
++/**
++ * To work on unit tests, switch the Test Artifact in the Build Variants view.
++ */
++public class ExampleUnitTest {
++    @Test
++    public void addition_isCorrect() throws Exception {
++        assertEquals(4, 2 + 2);
++    }
++}
+\ No newline at end of file
+Index: app/src/main/res/drawable/red_button.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/red_button.xml	(revision )
++++ app/src/main/res/drawable/red_button.xml	(revision )
+@@ -0,0 +1,37 @@
++<?xml version="1.0" encoding="utf-8"?>
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:state_pressed="true" >
++        <shape>
++            <solid
++                android:color="#ef4444" />
++            <stroke
++                android:width="1dp"
++                android:color="#992f2f" />
++            <corners
++                android:radius="3dp" />
++            <padding
++                android:left="10dp"
++                android:top="10dp"
++                android:right="10dp"
++                android:bottom="10dp" />
++        </shape>
++    </item>
++    <item>
++        <shape>
++            <gradient
++                android:startColor="#ef4444"
++                android:endColor="#992f2f"
++                android:angle="270" />
++            <stroke
++                android:width="1dp"
++                android:color="#992f2f" />
++            <corners
++                android:radius="3dp" />
++            <padding
++                android:left="10dp"
++                android:top="10dp"
++                android:right="10dp"
++                android:bottom="10dp" />
++        </shape>
++    </item>
++</selector>
+\ No newline at end of file
+Index: app/src/main/java/com/example/danielcastano/flores/MainActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/danielcastano/flores/MainActivity.java	(revision )
++++ app/src/main/java/com/example/danielcastano/flores/MainActivity.java	(revision )
+@@ -0,0 +1,196 @@
++package com.example.danielcastano.flores;
++
++import android.content.Context;
++import android.content.Intent;
++import android.graphics.Bitmap;
++import android.graphics.BitmapFactory;
++import android.graphics.drawable.BitmapDrawable;
++import android.net.Uri;
++import android.os.Bundle;
++import android.os.Environment;
++import android.provider.MediaStore;
++import android.support.v7.app.ActionBar;
++import android.support.v7.app.AppCompatActivity;
++import android.util.Log;
++import android.view.Menu;
++import android.view.MenuItem;
++import android.view.View;
++import android.widget.GridView;
++import android.widget.ImageView;
++import android.widget.TextView;
++import android.widget.Toast;
++
++import java.io.BufferedReader;
++import java.io.BufferedWriter;
++import java.io.ByteArrayOutputStream;
++import java.io.File;
++import java.io.FileReader;
++import java.io.FileWriter;
++import java.io.IOException;
++import java.io.PrintWriter;
++import java.text.SimpleDateFormat;
++import java.util.Date;
++
++import mundo.Flock;
++import mundo.Flor;
++
++public class MainActivity extends AppCompatActivity {
++
++    int umbral = 30;
++    static final int REQUEST_TAKE_PHOTO = 1;
++    String mCurrentPhotoPath;
++    private ImageView imageView;
++    private int contador;
++    protected String lastPhoto;
++    private Flock flock;
++
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        setContentView(R.layout.activity_main);
++        //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
++        //setSupportActionBar(toolbar);
++         imageView = (ImageView) findViewById(R.id.imageView);
++        contador = ((mundo.Flock)this.getApplication()).getContador();
++
++        lastPhoto = "";
++        flock = new Flock();
++    }
++
++    @Override
++    public boolean onCreateOptionsMenu(Menu menu) {
++        // Inflate the menu; this adds items to the action bar if it is present.
++        getMenuInflater().inflate(R.menu.menu_main, menu);
++        return true;
++    }
++
++    @Override
++    public boolean onOptionsItemSelected(MenuItem item) {
++        // Handle action bar item clicks here. The action bar will
++        // automatically handle clicks on the Home/Up button, so long
++        // as you specify a parent activity in AndroidManifest.xml.
++        int id = item.getItemId();
++
++        //noinspection SimplifiableIfStatement
++        if (id == R.id.action_settings) {
++            return true;
++        }
++
++        return super.onOptionsItemSelected(item);
++    }
++
++
++    public void botonIrColeccionFlores(View view) {
++
++        startActivity(new Intent(this, ColeccionFlores.class));
++    }
++
++    public void botonIrGaleria(View view) {
++
++        startActivity(new Intent(this, Galeria.class));
++    }
++
++    public void galleryAddPic() {
++        Intent mediaScanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
++        File f = new File(mCurrentPhotoPath);
++        Uri contentUri = Uri.fromFile(f);
++        mediaScanIntent.setData(contentUri);
++        this.sendBroadcast(mediaScanIntent);
++    }
++
++    public void dispatchTakePictureIntent(View view) {
++        ((mundo.Flock)this.getApplication()).setContador(((mundo.Flock)this.getApplication()).getContador()+1);
++
++        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
++
++        // Ensure that there's a camera activity to handle the intent
++        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
++            // Create the File where the photo should go
++            File photoFile = null;
++            try {
++                photoFile = createImageFile();
++            } catch (IOException ex) {
++                // Error occurred while creating the File
++            }
++            // Continue only if the File was successfully created
++            if (photoFile != null) {
++                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
++
++                startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
++            }
++        }
++    }
++    public File createImageFile() throws IOException {
++        // Create an image file name
++        String imageFileName = ((mundo.Flock)this.getApplication()).getContador()+"";
++        File image = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES)+"/Flores/"+imageFileName+".jpg");
++        image.getParentFile().mkdirs();
++        image.createNewFile();
++
++        // Save a file: path for use with ACTION_VIEW intents
++        mCurrentPhotoPath = "file:" + image.getAbsolutePath();
++        lastPhoto = image.getAbsolutePath();
++        Log.d("Direccion0: ", lastPhoto);
++
++        galleryAddPic();
++        return image;
++    }
++    @Override
++    public void onActivityResult(int requestCode, int resultCode, Intent data) {
++
++        if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
++
++
++            Bitmap test1 = ((BitmapDrawable) getResources().getDrawable(R.drawable.rosa)).getBitmap();
++            Bitmap test2 = ((BitmapDrawable) getResources().getDrawable(R.drawable.girasol)).getBitmap();
++            Bitmap test3 = ((BitmapDrawable) getResources().getDrawable(R.drawable.cartucho)).getBitmap();
++
++            Bitmap imagen = BitmapFactory.decodeFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/Flores/" + ((mundo.Flock) this.getApplication()).getContador() + ".jpg");
++
++            double dif1 = flock.compareImages(test1, imagen);
++            double dif2 = flock.compareImages(test2, imagen);
++            double dif3 = flock.compareImages(test3, imagen);
++            String mensaje = "";
++            if(dif1 < dif2 && dif1 < dif3) {
++                mensaje = "Su flor corresponde a una ROSA";
++                Log.d("dif: ", dif1+"");
++                if(dif1 > umbral){
++                    mensaje = "No pudimos reconocer su Flor";
++                }
++                //flock.agregarFlorEncontrada(1, test1);
++            }
++            else if(dif2 < dif1 && dif2 < dif3)
++            {
++                mensaje = "Su flor corresponde a un GIRASOL";
++                Log.d("dif: ", dif2+"");
++                if(dif2 > umbral){
++                    mensaje = "No pudimos reconocer su Flor";
++                }
++                //flock.agregarFlorEncontrada(1, test2);
++            }
++            else if (dif3 < dif1 && dif3 < dif2)
++            {
++                mensaje = "Su flor corresponde a un CARTUCHO";
++                Log.d("dif: ", dif3+"");
++                if(dif3 > umbral){
++                    mensaje = "No pudimos reconocer su Flor";
++                }
++                //flock.agregarFlorEncontrada(1, test3);
++
++            }
++
++            //imageView.setImageBitmap(imagen);
++
++            Context c = getApplicationContext();
++            CharSequence text = mensaje;
++            int duration = Toast.LENGTH_SHORT;
++
++            Toast toast = Toast.makeText(c, text, duration);
++            toast.show();
++
++
++        }
++    }
++
++
++}
+Index: .idea/gradle.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/gradle.xml	(revision )
++++ .idea/gradle.xml	(revision )
+@@ -0,0 +1,19 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="GradleSettings">
++    <option name="linkedExternalProjectsSettings">
++      <GradleProjectSettings>
++        <option name="distributionType" value="LOCAL" />
++        <option name="externalProjectPath" value="$PROJECT_DIR$" />
++        <option name="gradleHome" value="$APPLICATION_HOME_DIR$/gradle/gradle-2.8" />
++        <option name="gradleJvm" value="1.7" />
++        <option name="modules">
++          <set>
++            <option value="$PROJECT_DIR$" />
++            <option value="$PROJECT_DIR$/app" />
++          </set>
++        </option>
++      </GradleProjectSettings>
++    </option>
++  </component>
++</project>
+\ No newline at end of file
+Index: .idea/copyright/profiles_settings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/copyright/profiles_settings.xml	(revision )
++++ .idea/copyright/profiles_settings.xml	(revision )
+@@ -0,0 +1,3 @@
++<component name="CopyrightManager">
++  <settings default="" />
++</component>
+\ No newline at end of file
+Index: settings.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- settings.gradle	(revision )
++++ settings.gradle	(revision )
+@@ -0,0 +1,1 @@
++include ':app'
+Index: app/src/main/res/drawable/yellow_button.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/yellow_button.xml	(revision )
++++ app/src/main/res/drawable/yellow_button.xml	(revision )
+@@ -0,0 +1,37 @@
++<?xml version="1.0" encoding="utf-8"?>
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:state_pressed="true" >
++        <shape>
++            <solid
++                android:color="#f3ae1b" />
++            <stroke
++                android:width="1dp"
++                android:color="#bb6008" />
++            <corners
++                android:radius="3dp" />
++            <padding
++                android:left="10dp"
++                android:top="10dp"
++                android:right="10dp"
++                android:bottom="10dp" />
++        </shape>
++    </item>
++    <item>
++        <shape>
++            <gradient
++                android:startColor="#f3ae1b"
++                android:endColor="#bb6008"
++                android:angle="270" />
++            <stroke
++                android:width="1dp"
++                android:color="#bb6008" />
++            <corners
++                android:radius="4dp" />
++            <padding
++                android:left="10dp"
++                android:top="10dp"
++                android:right="10dp"
++                android:bottom="10dp" />
++        </shape>
++    </item>
++</selector>
+\ No newline at end of file
+Index: app/src/main/res/values/dimens.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values/dimens.xml	(revision )
++++ app/src/main/res/values/dimens.xml	(revision )
+@@ -0,0 +1,6 @@
++<resources>
++    <!-- Default screen margins, per the Android Design guidelines. -->
++    <dimen name="activity_horizontal_margin">16dp</dimen>
++    <dimen name="activity_vertical_margin">16dp</dimen>
++    <dimen name="fab_margin">16dp</dimen>
++</resources>
+Index: app/src/main/res/values/strings.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values/strings.xml	(revision )
++++ app/src/main/res/values/strings.xml	(revision )
+@@ -0,0 +1,9 @@
++<resources>
++    <string name="app_name">Flores</string>
++    <string name="action_settings">Settings</string>
++    <string name="edit_message">Tome un foto por favor</string>
++    <string name="button_send">FOTO</string>
++    <string name="title_activity_usos">Usos</string>
++    <string name="text_subrayado"><u>Usos</u></string>
++
++</resources>
+Index: app/src/main/res/drawable/blue_button.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/blue_button.xml	(revision )
++++ app/src/main/res/drawable/blue_button.xml	(revision )
+@@ -0,0 +1,37 @@
++<?xml version="1.0" encoding="utf-8"?>
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:state_pressed="true" >
++        <shape>
++            <solid
++                android:color="#449def" />
++            <stroke
++                android:width="1dp"
++                android:color="#2f6699" />
++            <corners
++                android:radius="3dp" />
++            <padding
++                android:left="10dp"
++                android:top="10dp"
++                android:right="10dp"
++                android:bottom="10dp" />
++        </shape>
++    </item>
++    <item>
++        <shape>
++            <gradient
++                android:startColor="#449def"
++                android:endColor="#2f6699"
++                android:angle="270" />
++            <stroke
++                android:width="1dp"
++                android:color="#2f6699" />
++            <corners
++                android:radius="4dp" />
++            <padding
++                android:left="10dp"
++                android:top="10dp"
++                android:right="10dp"
++                android:bottom="10dp" />
++        </shape>
++    </item>
++</selector>
+\ No newline at end of file
+Index: .gitignore
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .gitignore	(revision )
++++ .gitignore	(revision )
+@@ -0,0 +1,8 @@
++*.iml
++.gradle
++/local.properties
++/.idea/workspace.xml
++/.idea/libraries
++.DS_Store
++/build
++/captures
+Index: app/src/main/res/drawable/purple_button.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/purple_button.xml	(revision )
++++ app/src/main/res/drawable/purple_button.xml	(revision )
+@@ -0,0 +1,37 @@
++<?xml version="1.0" encoding="utf-8"?>
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:state_pressed="true" >
++        <shape>
++            <solid
++                android:color="#a276eb" />
++            <stroke
++                android:width="1dp"
++                android:color="#6a3ab2" />
++            <corners
++                android:radius="3dp" />
++            <padding
++                android:left="10dp"
++                android:top="10dp"
++                android:right="10dp"
++                android:bottom="10dp" />
++        </shape>
++    </item>
++    <item>
++        <shape>
++            <gradient
++                android:startColor="#a276eb"
++                android:endColor="#6a3ab2"
++                android:angle="270" />
++            <stroke
++                android:width="1dp"
++                android:color="#6a3ab2" />
++            <corners
++                android:radius="4dp" />
++            <padding
++                android:left="10dp"
++                android:top="10dp"
++                android:right="10dp"
++                android:bottom="10dp" />
++        </shape>
++    </item>
++</selector>
+\ No newline at end of file
+Index: .idea/runConfigurations.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/runConfigurations.xml	(revision )
++++ .idea/runConfigurations.xml	(revision )
+@@ -0,0 +1,12 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="RunConfigurationProducerService">
++    <option name="ignoredProducers">
++      <set>
++        <option value="org.jetbrains.plugins.gradle.execution.test.runner.AllInPackageGradleConfigurationProducer" />
++        <option value="org.jetbrains.plugins.gradle.execution.test.runner.TestClassGradleConfigurationProducer" />
++        <option value="org.jetbrains.plugins.gradle.execution.test.runner.TestMethodGradleConfigurationProducer" />
++      </set>
++    </option>
++  </component>
++</project>
+\ No newline at end of file
+Index: app/build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/build.gradle	(revision )
++++ app/build.gradle	(revision )
+@@ -0,0 +1,30 @@
++apply plugin: 'com.android.application'
++
++android {
++    compileSdkVersion 23
++    buildToolsVersion "23.0.2"
++
++    defaultConfig {
++        applicationId "com.example.danielcastano.flores"
++        minSdkVersion 16
++        targetSdkVersion 23
++        versionCode 1
++        versionName "1.0"
++    }
++    buildTypes {
++        release {
++            minifyEnabled false
++            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
++        }
++    }
++}
++
++dependencies {
++    compile fileTree(dir: 'libs', include: ['*.jar'])
++    testCompile 'junit:junit:4.12'
++    compile 'com.android.support:appcompat-v7:23.1.1'
++    compile 'com.android.support:design:23.1.1'
++    compile 'com.baoyz.swipemenulistview:library:1.3.0'
++    compile 'de.hdodenhof:circleimageview:2.0.0'
++    compile 'com.android.support:cardview-v7:23.0.+'
++}
+Index: .idea/modules.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/modules.xml	(revision )
++++ .idea/modules.xml	(revision )
+@@ -0,0 +1,9 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="ProjectModuleManager">
++    <modules>
++      <module fileurl="file://$PROJECT_DIR$/Flores.iml" filepath="$PROJECT_DIR$/Flores.iml" />
++      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
++    </modules>
++  </component>
++</project>
+\ No newline at end of file
+Index: app/src/main/res/layout/activity_main.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/activity_main.xml	(revision )
++++ app/src/main/res/layout/activity_main.xml	(revision )
+@@ -0,0 +1,88 @@
++<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:app="http://schemas.android.com/apk/res-auto"
++    xmlns:tools="http://schemas.android.com/tools"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:orientation="horizontal"
++    android:background="@drawable/fondo_principal"
++    app:layout_behavior="@string/appbar_scrolling_view_behavior"
++    >
++
++
++    <LinearLayout
++        android:orientation="vertical"
++        android:layout_width="match_parent"
++        android:layout_height="match_parent">
++
++        <ImageView
++            android:layout_width="fill_parent"
++            android:layout_height="fill_parent"
++            android:id="@+id/imageView" />
++
++    </LinearLayout>
++
++    <LinearLayout
++
++        android:orientation="horizontal"
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        android:gravity="bottom"
++        android:layout_alignParentTop="true"
++        android:layout_alignParentLeft="true"
++        android:layout_alignParentStart="true">
++
++
++        <ImageButton
++            android:layout_width="0dp"
++            android:layout_weight=".33"
++
++            android:layout_height="60dp"
++            android:onClick="dispatchTakePictureIntent"
++            android:text="@string/button_send"
++            android:id="@+id/button2"
++            android:background="#09162E"
++
++            android:layout_alignParentBottom="true"
++            android:layout_alignParentLeft="true"
++            android:layout_alignParentStart="true"
++            android:src="@drawable/icon_camera"
++            android:padding="10dp"
++            android:scaleType="fitCenter"
++            android:layout_gravity="bottom" />
++        <ImageButton
++            android:layout_width="0dp"
++            android:layout_weight=".33"
++            android:layout_height="60dp"
++            android:onClick="botonIrColeccionFlores"
++            android:scaleType="fitCenter"
++            android:id="@+id/button"
++            android:background="#09162E"
++            android:padding="10dp"
++            android:src="@drawable/icon_mis_flores"
++            android:layout_alignTop="@+id/button2"
++            android:layout_alignParentRight="true"
++            android:layout_alignParentEnd="true"
++            android:layout_toRightOf="@+id/button2"
++            android:layout_toEndOf="@+id/button2" />
++
++        <ImageButton
++            android:layout_width="0dp"
++            android:layout_weight=".33"
++            android:layout_height="60dp"
++            android:onClick="botonIrGaleria"
++            android:scaleType="fitCenter"
++            android:id="@+id/button_galeria"
++            android:background="#09162E"
++            android:padding="10dp"
++            android:src="@drawable/icon_galeria"
++            android:layout_alignTop="@+id/button2"
++            android:layout_alignParentRight="true"
++            android:layout_alignParentEnd="true"
++            android:layout_toRightOf="@+id/button2"
++            android:layout_toEndOf="@+id/button2" />
++
++
++    </LinearLayout>
++
++
++</RelativeLayout>
+Index: app/src/main/java/com/example/danielcastano/flores/FlorVista.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/danielcastano/flores/FlorVista.java	(revision )
++++ app/src/main/java/com/example/danielcastano/flores/FlorVista.java	(revision )
+@@ -0,0 +1,43 @@
++package com.example.danielcastano.flores;
++import android.content.Intent;
++import android.database.Cursor;
++import android.database.sqlite.SQLiteDatabase;
++import android.support.v7.app.ActionBar;
++import android.support.v7.app.AppCompatActivity;
++import android.os.Bundle;
++import android.view.View;
++import android.widget.TextView;
++import db.FloresDBHelper;
++public class FlorVista extends AppCompatActivity {
++    String nombreCient = "";
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        setContentView(R.layout.flor_vista);
++        ActionBar actionBar = getSupportActionBar();
++        actionBar.setDisplayShowHomeEnabled(true);
++        actionBar.setIcon(R.mipmap.ic_launcher);
++        Intent intent = getIntent();
++        TextView nombreFlor = (TextView)findViewById(R.id.card_flor_name);
++        nombreFlor.setText(intent.getStringExtra("NombreFlor"));
++        TextView nombreFlorCientifico = (TextView)findViewById(R.id.card_flor_name_cient);
++        nombreFlorCientifico.setText(intent.getStringExtra("NombreFlorCientifico"));
++        nombreCient = intent.getStringExtra("NombreFlorCientifico");
++        TextView descripcionFlor = (TextView)findViewById(R.id.card_descripcion);
++        //SQLite
++        FloresDBHelper db = new FloresDBHelper(this);
++        SQLiteDatabase datos = db.getReadableDatabase();
++        String consulta = "SELECT * FROM FLORES WHERE NOMBRE = '" + nombreFlor.getText()  +"'";
++        Cursor cursor = datos.rawQuery(consulta,null);
++        if(cursor.moveToFirst())
++        {
++            descripcionFlor.setText(cursor.getString(cursor.getColumnIndex("DESCRIPCION")));
++        }
++        //\SQLite
++    }
++    public void irUsos(View view) {
++        Intent intent = new Intent(this, Usos.class);
++        intent.putExtra("NombreFlorCientifico",nombreCient);
++        startActivity(intent);
++    }
++}
+\ No newline at end of file
+Index: app/src/main/res/values/styles.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values/styles.xml	(revision )
++++ app/src/main/res/values/styles.xml	(revision )
+@@ -0,0 +1,20 @@
++<resources>
++
++    <!-- Base application theme. -->
++    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
++        <!-- Customize your theme here. -->
++        <item name="colorPrimary">#09162E</item>
++        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
++        <item name="colorAccent">@color/colorAccent</item>
++    </style>
++
++    <style name="AppTheme.NoActionBar">
++        <item name="windowActionBar">false</item>
++        <item name="windowNoTitle">true</item>
++    </style>
++
++    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
++
++    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
++
++</resources>
+Index: build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- build.gradle	(revision )
++++ build.gradle	(revision )
+@@ -0,0 +1,23 @@
++// Top-level build file where you can add configuration options common to all sub-projects/modules.
++
++buildscript {
++    repositories {
++        jcenter()
++    }
++    dependencies {
++        classpath 'com.android.tools.build:gradle:1.5.0'
++
++        // NOTE: Do not place your application dependencies here; they belong
++        // in the individual module build.gradle files
++    }
++}
++
++allprojects {
++    repositories {
++        jcenter()
++    }
++}
++
++task clean(type: Delete) {
++    delete rootProject.buildDir
++}
+Index: app/.gitignore
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/.gitignore	(revision )
++++ app/.gitignore	(revision )
+@@ -0,0 +1,1 @@
++/build
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/misc.xml	(revision )
++++ .idea/misc.xml	(revision )
+@@ -0,0 +1,46 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="EntryPointsManager">
++    <entry_points version="2.0" />
++  </component>
++  <component name="NullableNotNullManager">
++    <option name="myDefaultNullable" value="android.support.annotation.Nullable" />
++    <option name="myDefaultNotNull" value="android.support.annotation.NonNull" />
++    <option name="myNullables">
++      <value>
++        <list size="4">
++          <item index="0" class="java.lang.String" itemvalue="org.jetbrains.annotations.Nullable" />
++          <item index="1" class="java.lang.String" itemvalue="javax.annotation.Nullable" />
++          <item index="2" class="java.lang.String" itemvalue="edu.umd.cs.findbugs.annotations.Nullable" />
++          <item index="3" class="java.lang.String" itemvalue="android.support.annotation.Nullable" />
++        </list>
++      </value>
++    </option>
++    <option name="myNotNulls">
++      <value>
++        <list size="4">
++          <item index="0" class="java.lang.String" itemvalue="org.jetbrains.annotations.NotNull" />
++          <item index="1" class="java.lang.String" itemvalue="javax.annotation.Nonnull" />
++          <item index="2" class="java.lang.String" itemvalue="edu.umd.cs.findbugs.annotations.NonNull" />
++          <item index="3" class="java.lang.String" itemvalue="android.support.annotation.NonNull" />
++        </list>
++      </value>
++    </option>
++  </component>
++  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
++    <OptionsSetting value="true" id="Add" />
++    <OptionsSetting value="true" id="Remove" />
++    <OptionsSetting value="true" id="Checkout" />
++    <OptionsSetting value="true" id="Update" />
++    <OptionsSetting value="true" id="Status" />
++    <OptionsSetting value="true" id="Edit" />
++    <ConfirmationsSetting value="0" id="Add" />
++    <ConfirmationsSetting value="0" id="Remove" />
++  </component>
++  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_7" default="true" assert-keyword="true" jdk-15="true" project-jdk-name="1.7" project-jdk-type="JavaSDK">
++    <output url="file://$PROJECT_DIR$/build/classes" />
++  </component>
++  <component name="ProjectType">
++    <option name="id" value="Android" />
++  </component>
++</project>
+\ No newline at end of file
+Index: app/src/main/AndroidManifest.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/AndroidManifest.xml	(revision )
++++ app/src/main/AndroidManifest.xml	(revision )
+@@ -0,0 +1,41 @@
++<?xml version="1.0" encoding="utf-8"?>
++<manifest xmlns:android="http://schemas.android.com/apk/res/android"
++    package="com.example.danielcastano.flores">
++
++    <uses-feature
++        android:name="android.hardware.camera"
++        android:required="true" />
++
++    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
++
++    <application
++        android:name="mundo.Flock"
++        android:allowBackup="true"
++        android:icon="@mipmap/ic_launcher"
++        android:label="@string/app_name"
++        android:supportsRtl="true"
++        android:theme="@style/AppTheme">
++        <activity
++            android:name=".MainActivity"
++            android:label=""
++            android:theme="@style/AppTheme">
++            <intent-filter>
++                <action android:name="android.intent.action.MAIN" />
++
++                <category android:name="android.intent.category.LAUNCHER" />
++            </intent-filter>
++        </activity>
++        <activity
++            android:name=".ColeccionFlores"
++            android:label="" />
++        <activity
++            android:name=".FlorVista"
++            android:label="" />
++        <activity android:name=".Galeria" />
++        <activity
++            android:name=".Usos"
++            android:label="@string/title_activity_usos"
++            android:theme="@style/AppTheme.NoActionBar"></activity>
++    </application>
++
++</manifest>
+Index: app/src/main/res/drawable/green_button.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/green_button.xml	(revision )
++++ app/src/main/res/drawable/green_button.xml	(revision )
+@@ -0,0 +1,37 @@
++<?xml version="1.0" encoding="utf-8"?>
++<selector xmlns:android="http://schemas.android.com/apk/res/android">
++    <item android:state_pressed="true" >
++        <shape>
++            <solid
++                android:color="#70c656" />
++            <stroke
++                android:width="1dp"
++                android:color="#53933f" />
++            <corners
++                android:radius="3dp" />
++            <padding
++                android:left="10dp"
++                android:top="10dp"
++                android:right="10dp"
++                android:bottom="10dp" />
++        </shape>
++    </item>
++    <item>
++        <shape>
++            <gradient
++                android:startColor="#70c656"
++                android:endColor="#53933f"
++                android:angle="270" />
++            <stroke
++                android:width="1dp"
++                android:color="#53933f" />
++            <corners
++                android:radius="4dp" />
++            <padding
++                android:left="10dp"
++                android:top="10dp"
++                android:right="10dp"
++                android:bottom="10dp" />
++        </shape>
++    </item>
++</selector>
+\ No newline at end of file
+Index: gradlew
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- gradlew	(revision )
++++ gradlew	(revision )
+@@ -0,0 +1,160 @@
++#!/usr/bin/env bash
++
++##############################################################################
++##
++##  Gradle start up script for UN*X
++##
++##############################################################################
++
++# Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
++DEFAULT_JVM_OPTS=""
++
++APP_NAME="Gradle"
++APP_BASE_NAME=`basename "$0"`
++
++# Use the maximum available, or set MAX_FD != -1 to use that value.
++MAX_FD="maximum"
++
++warn ( ) {
++    echo "$*"
++}
++
++die ( ) {
++    echo
++    echo "$*"
++    echo
++    exit 1
++}
++
++# OS specific support (must be 'true' or 'false').
++cygwin=false
++msys=false
++darwin=false
++case "`uname`" in
++  CYGWIN* )
++    cygwin=true
++    ;;
++  Darwin* )
++    darwin=true
++    ;;
++  MINGW* )
++    msys=true
++    ;;
++esac
++
++# Attempt to set APP_HOME
++# Resolve links: $0 may be a link
++PRG="$0"
++# Need this for relative symlinks.
++while [ -h "$PRG" ] ; do
++    ls=`ls -ld "$PRG"`
++    link=`expr "$ls" : '.*-> \(.*\)$'`
++    if expr "$link" : '/.*' > /dev/null; then
++        PRG="$link"
++    else
++        PRG=`dirname "$PRG"`"/$link"
++    fi
++done
++SAVED="`pwd`"
++cd "`dirname \"$PRG\"`/" >/dev/null
++APP_HOME="`pwd -P`"
++cd "$SAVED" >/dev/null
++
++CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar
++
++# Determine the Java command to use to start the JVM.
++if [ -n "$JAVA_HOME" ] ; then
++    if [ -x "$JAVA_HOME/jre/sh/java" ] ; then
++        # IBM's JDK on AIX uses strange locations for the executables
++        JAVACMD="$JAVA_HOME/jre/sh/java"
++    else
++        JAVACMD="$JAVA_HOME/bin/java"
++    fi
++    if [ ! -x "$JAVACMD" ] ; then
++        die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME
++
++Please set the JAVA_HOME variable in your environment to match the
++location of your Java installation."
++    fi
++else
++    JAVACMD="java"
++    which java >/dev/null 2>&1 || die "ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
++
++Please set the JAVA_HOME variable in your environment to match the
++location of your Java installation."
++fi
++
++# Increase the maximum file descriptors if we can.
++if [ "$cygwin" = "false" -a "$darwin" = "false" ] ; then
++    MAX_FD_LIMIT=`ulimit -H -n`
++    if [ $? -eq 0 ] ; then
++        if [ "$MAX_FD" = "maximum" -o "$MAX_FD" = "max" ] ; then
++            MAX_FD="$MAX_FD_LIMIT"
++        fi
++        ulimit -n $MAX_FD
++        if [ $? -ne 0 ] ; then
++            warn "Could not set maximum file descriptor limit: $MAX_FD"
++        fi
++    else
++        warn "Could not query maximum file descriptor limit: $MAX_FD_LIMIT"
++    fi
++fi
++
++# For Darwin, add options to specify how the application appears in the dock
++if $darwin; then
++    GRADLE_OPTS="$GRADLE_OPTS \"-Xdock:name=$APP_NAME\" \"-Xdock:icon=$APP_HOME/media/gradle.icns\""
++fi
++
++# For Cygwin, switch paths to Windows format before running java
++if $cygwin ; then
++    APP_HOME=`cygpath --path --mixed "$APP_HOME"`
++    CLASSPATH=`cygpath --path --mixed "$CLASSPATH"`
++    JAVACMD=`cygpath --unix "$JAVACMD"`
++
++    # We build the pattern for arguments to be converted via cygpath
++    ROOTDIRSRAW=`find -L / -maxdepth 1 -mindepth 1 -type d 2>/dev/null`
++    SEP=""
++    for dir in $ROOTDIRSRAW ; do
++        ROOTDIRS="$ROOTDIRS$SEP$dir"
++        SEP="|"
++    done
++    OURCYGPATTERN="(^($ROOTDIRS))"
++    # Add a user-defined pattern to the cygpath arguments
++    if [ "$GRADLE_CYGPATTERN" != "" ] ; then
++        OURCYGPATTERN="$OURCYGPATTERN|($GRADLE_CYGPATTERN)"
++    fi
++    # Now convert the arguments - kludge to limit ourselves to /bin/sh
++    i=0
++    for arg in "$@" ; do
++        CHECK=`echo "$arg"|egrep -c "$OURCYGPATTERN" -`
++        CHECK2=`echo "$arg"|egrep -c "^-"`                                 ### Determine if an option
++
++        if [ $CHECK -ne 0 ] && [ $CHECK2 -eq 0 ] ; then                    ### Added a condition
++            eval `echo args$i`=`cygpath --path --ignore --mixed "$arg"`
++        else
++            eval `echo args$i`="\"$arg\""
++        fi
++        i=$((i+1))
++    done
++    case $i in
++        (0) set -- ;;
++        (1) set -- "$args0" ;;
++        (2) set -- "$args0" "$args1" ;;
++        (3) set -- "$args0" "$args1" "$args2" ;;
++        (4) set -- "$args0" "$args1" "$args2" "$args3" ;;
++        (5) set -- "$args0" "$args1" "$args2" "$args3" "$args4" ;;
++        (6) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" ;;
++        (7) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" ;;
++        (8) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" "$args7" ;;
++        (9) set -- "$args0" "$args1" "$args2" "$args3" "$args4" "$args5" "$args6" "$args7" "$args8" ;;
++    esac
++fi
++
++# Split up the JVM_OPTS And GRADLE_OPTS values into an array, following the shell quoting and substitution rules
++function splitJvmOpts() {
++    JVM_OPTS=("$@")
++}
++eval splitJvmOpts $DEFAULT_JVM_OPTS $JAVA_OPTS $GRADLE_OPTS
++JVM_OPTS[${#JVM_OPTS[*]}]="-Dorg.gradle.appname=$APP_BASE_NAME"
++
++exec "$JAVACMD" "${JVM_OPTS[@]}" -classpath "$CLASSPATH" org.gradle.wrapper.GradleWrapperMain "$@"
+Index: app/src/main/res/values-w820dp/dimens.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values-w820dp/dimens.xml	(revision )
++++ app/src/main/res/values-w820dp/dimens.xml	(revision )
+@@ -0,0 +1,6 @@
++<resources>
++    <!-- Example customization of dimensions originally defined in res/values/dimens.xml
++         (such as screen margins) for screens with more than 820dp of available width. This
++         would include 7" and 10" devices in landscape (~960dp and ~1280dp respectively). -->
++    <dimen name="activity_horizontal_margin">64dp</dimen>
++</resources>
+Index: app/src/main/res/values-v21/styles.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values-v21/styles.xml	(revision )
++++ app/src/main/res/values-v21/styles.xml	(revision )
+@@ -0,0 +1,9 @@
++<resources>>
++
++    <style name="AppTheme.NoActionBar">
++        <item name="windowActionBar">false</item>
++        <item name="windowNoTitle">true</item>
++        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
++        <item name="android:statusBarColor">@android:color/transparent</item>
++    </style>
++</resources>
+Index: app/proguard-rules.pro
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/proguard-rules.pro	(revision )
++++ app/proguard-rules.pro	(revision )
+@@ -0,0 +1,17 @@
++# Add project specific ProGuard rules here.
++# By default, the flags in this file are appended to flags specified
++# in /Users/danielcastano/Library/Android/sdk/tools/proguard/proguard-android.txt
++# You can edit the include path and order by changing the proguardFiles
++# directive in build.gradle.
++#
++# For more details, see
++#   http://developer.android.com/guide/developing/tools/proguard.html
++
++# Add any project specific keep options here:
++
++# If your project uses WebView with JS, uncomment the following
++# and specify the fully qualified class name to the JavaScript interface
++# class:
++#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
++#   public *;
++#}
+Index: app/src/main/res/layout/flor_vista.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/flor_vista.xml	(revision )
++++ app/src/main/res/layout/flor_vista.xml	(revision )
+@@ -0,0 +1,71 @@
++<?xml version="1.0" encoding="utf-8"?>
++<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:paddingBottom="@dimen/activity_vertical_margin"
++    android:paddingLeft="@dimen/activity_horizontal_margin"
++    android:paddingRight="@dimen/activity_horizontal_margin"
++    android:paddingTop="@dimen/activity_vertical_margin"
++    tools:context=".FlorVista">
++    <android.support.v7.widget.CardView
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        android:id="@+id/cv"
++        >
++        <LinearLayout
++            android:layout_width="match_parent"
++            android:layout_height="wrap_content"
++            android:padding="16dp"
++            android:orientation="vertical"
++            >
++            <ImageView
++                android:layout_width="wrap_content"
++                android:layout_height="200dp"
++                android:id="@+id/card_flor_image"
++                android:src="@drawable/girasol"
++                android:layout_alignParentTop="true"
++                android:layout_alignParentLeft="true"
++                android:layout_alignParentStart="true"
++                android:layout_marginBottom="10dp"
++                android:scaleType="centerCrop" />
++            <TextView
++                android:layout_width="wrap_content"
++                android:layout_height="wrap_content"
++                android:id="@+id/card_flor_name"
++                android:textSize="30sp"
++                android:text="Nombre Común"
++                android:layout_alignParentTop="true"
++                android:layout_alignParentLeft="true"
++                android:layout_alignParentStart="true"
++                android:layout_below="@+id/card_flor_image"
++                android:layout_marginBottom="5dp"/>
++            <TextView
++                android:layout_width="wrap_content"
++                android:layout_height="wrap_content"
++                android:id="@+id/card_flor_name_cient"
++                android:text="Nombre Científico"
++                android:layout_below="@+id/card_flor_name"
++                android:layout_marginBottom="5dp"
++                android:layout_alignLeft="@+id/card_flor_name"
++                android:layout_alignStart="@+id/card_flor_name" />
++            <TextView
++                android:id="@+id/card_descripcion"
++                android:layout_width="match_parent"
++                android:layout_height="wrap_content"
++                android:maxLines="20"
++                android:layout_marginBottom="5dp"
++                android:scrollbars="vertical"
++                android:text="Descripcion"
++                />
++            <TextView
++                android:layout_width="wrap_content"
++                android:layout_height="wrap_content"
++                android:text="@string/text_subrayado"
++                android:textColor="@android:color/holo_blue_dark"
++                android:onClick="irUsos"
++                android:id="@+id/textView"
++                android:textSize="18dp" />
++        </LinearLayout>
++    </android.support.v7.widget.CardView>
++</RelativeLayout>
+Index: gradle/wrapper/gradle-wrapper.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- gradle/wrapper/gradle-wrapper.properties	(revision )
++++ gradle/wrapper/gradle-wrapper.properties	(revision )
+@@ -0,0 +1,6 @@
++#Wed Oct 21 11:34:03 PDT 2015
++distributionBase=GRADLE_USER_HOME
++distributionPath=wrapper/dists
++zipStoreBase=GRADLE_USER_HOME
++zipStorePath=wrapper/dists
++distributionUrl=https\://services.gradle.org/distributions/gradle-2.8-all.zip
+Index: app/src/main/res/values/colors.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values/colors.xml	(revision )
++++ app/src/main/res/values/colors.xml	(revision )
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="utf-8"?>
++<resources>
++    <color name="colorPrimary">#3F51B5</color>
++    <color name="colorPrimaryDark">#303F9F</color>
++    <color name="colorAccent">#FF4081</color>
++</resources>
+Index: app/src/main/java/com/example/danielcastano/flores/Galeria.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/danielcastano/flores/Galeria.java	(revision )
++++ app/src/main/java/com/example/danielcastano/flores/Galeria.java	(revision )
+@@ -0,0 +1,107 @@
++package com.example.danielcastano.flores;
++
++import android.content.Context;
++import android.database.Cursor;
++import android.graphics.Bitmap;
++import android.graphics.drawable.Drawable;
++import android.net.Uri;
++import android.provider.MediaStore;
++import android.support.v7.app.AppCompatActivity;
++import android.os.Bundle;
++import android.view.View;
++import android.view.ViewGroup;
++import android.widget.AdapterView;
++import android.widget.BaseAdapter;
++import android.widget.Gallery;
++import android.widget.GridView;
++import android.widget.ImageView;
++import android.widget.Toast;
++
++import java.io.File;
++import java.util.ArrayList;
++import java.util.List;
++import java.util.Vector;
++
++public class Galeria extends AppCompatActivity {
++
++    private Vector<ImageView> mySDCardImages;
++    private Cursor cursor;
++    private int columnIndex;
++
++
++    @Override
++    protected void onCreate(Bundle savedInstanceState) {
++        super.onCreate(savedInstanceState);
++        setContentView(R.layout.activity_galeria);
++
++        GridView gridview = (GridView) findViewById(R.id.gridview);
++
++        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
++            public void onItemClick(AdapterView<?> parent, View v,
++                                    int position, long id) {
++                Toast.makeText(Galeria.this, "" + position,
++                        Toast.LENGTH_SHORT).show();
++            }
++        });
++
++        String[] projection = {MediaStore.Images.Media._ID};
++// Create the cursor pointing to the SDCard
++        cursor = managedQuery( MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
++                projection,
++                MediaStore.Images.Media.DATA + " like ? ",
++                new String[] {"%Flores%"},
++                null);
++// Get the column index of the image ID
++        columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media._ID);
++        gridview.setAdapter(new ImageAdapter(this));
++    }
++
++
++
++
++
++    class ImageAdapter extends BaseAdapter {
++        private Context context;
++
++        public ImageAdapter(Context c) {
++            context = c;
++        }
++
++        public int getCount() {
++            return cursor.getCount();
++        }
++
++        public Object getItem(int position) {
++            return null;
++        }
++
++        public long getItemId(int position) {
++            return 0;
++        }
++
++        // create a new ImageView for each item referenced by the Adapter
++        public View getView(int position, View convertView, ViewGroup parent) {
++            ImageView i = new ImageView(context);
++            // Move cursor to current position
++            cursor.moveToPosition(position);
++            // Get the current value for the requested column
++            int imageID = cursor.getInt(columnIndex);
++            // obtain the image URI
++            Uri uri = Uri.withAppendedPath( MediaStore.Images.Media.EXTERNAL_CONTENT_URI, Integer.toString(imageID) );
++            String url = uri.toString();
++            // Set the content of the image based on the image URI
++            int originalImageId = Integer.parseInt(url.substring(url.lastIndexOf("/") + 1, url.length()));
++            Bitmap b = MediaStore.Images.Thumbnails.getThumbnail(getContentResolver(),
++                    originalImageId, MediaStore.Images.Thumbnails.MINI_KIND, null);
++            i.setImageBitmap(b);
++
++            return i;
++        }
++
++        // references to our images
++        private Integer[] mThumbIds = {
++                R.drawable.rosa, R.drawable.girasol,
++                R.drawable.cartucho, R.drawable.ic_delete
++        };
++    }
++}
+Index: app/src/main/res/menu/menu_main.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/menu/menu_main.xml	(revision )
++++ app/src/main/res/menu/menu_main.xml	(revision )
+@@ -0,0 +1,23 @@
++<menu xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:app="http://schemas.android.com/apk/res-auto"
++    xmlns:tools="http://schemas.android.com/tools"
++    tools:context="com.example.danielcastano.flores.MainActivity">
++    <item
++        android:id="@+id/action_settings"
++        android:orderInCategory="100"
++        android:title="@string/action_settings"
++        app:showAsAction="never" />
++
++    <item
++        android:id="@+id/action_left"
++        android:orderInCategory="100"
++        android:title="Left"
++        app:showAsAction="never" />
++
++    <item
++        android:id="@+id/action_right"
++        android:orderInCategory="100"
++        android:title="Right"
++        app:showAsAction="never" />
++
++</menu>
+Index: .idea/.name
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/.name	(revision )
++++ .idea/.name	(revision )
+@@ -0,0 +1,1 @@
++Flores
+\ No newline at end of file
+Index: app/src/main/res/layout/activity_galeria.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/activity_galeria.xml	(revision )
++++ app/src/main/res/layout/activity_galeria.xml	(revision )
+@@ -0,0 +1,24 @@
++<?xml version="1.0" encoding="utf-8"?>
++<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
++    xmlns:tools="http://schemas.android.com/tools"
++    android:layout_width="match_parent"
++    android:layout_height="match_parent"
++    android:paddingBottom="@dimen/activity_vertical_margin"
++    android:paddingLeft="@dimen/activity_horizontal_margin"
++    android:paddingRight="@dimen/activity_horizontal_margin"
++    android:paddingTop="@dimen/activity_vertical_margin"
++    android:orientation="vertical"
++    tools:context="com.example.danielcastano.flores.Galeria">
++
++    <GridView xmlns:android="http://schemas.android.com/apk/res/android"
++        android:id="@+id/gridview"
++        android:layout_width="match_parent"
++        android:layout_height="match_parent"
++        android:numColumns="2"
++        android:verticalSpacing="2dp"
++        android:horizontalSpacing="2dp"
++        android:stretchMode="columnWidth"
++        android:gravity="center"
++        />
++
++</LinearLayout>
+Index: .idea/compiler.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/compiler.xml	(revision )
++++ .idea/compiler.xml	(revision )
+@@ -0,0 +1,22 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="CompilerConfiguration">
++    <resourceExtensions />
++    <wildcardResourcePatterns>
++      <entry name="!?*.java" />
++      <entry name="!?*.form" />
++      <entry name="!?*.class" />
++      <entry name="!?*.groovy" />
++      <entry name="!?*.scala" />
++      <entry name="!?*.flex" />
++      <entry name="!?*.kt" />
++      <entry name="!?*.clj" />
++      <entry name="!?*.aj" />
++    </wildcardResourcePatterns>
++    <annotationProcessing>
++      <profile default="true" name="Default" enabled="false">
++        <processorPath useClasspath="true" />
++      </profile>
++    </annotationProcessing>
++  </component>
++</project>
+\ No newline at end of file
+Index: gradlew.bat
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- gradlew.bat	(revision )
++++ gradlew.bat	(revision )
+@@ -0,0 +1,90 @@
++@if "%DEBUG%" == "" @echo off
++@rem ##########################################################################
++@rem
++@rem  Gradle startup script for Windows
++@rem
++@rem ##########################################################################
++
++@rem Set local scope for the variables with windows NT shell
++if "%OS%"=="Windows_NT" setlocal
++
++@rem Add default JVM options here. You can also use JAVA_OPTS and GRADLE_OPTS to pass JVM options to this script.
++set DEFAULT_JVM_OPTS=
++
++set DIRNAME=%~dp0
++if "%DIRNAME%" == "" set DIRNAME=.
++set APP_BASE_NAME=%~n0
++set APP_HOME=%DIRNAME%
++
++@rem Find java.exe
++if defined JAVA_HOME goto findJavaFromJavaHome
++
++set JAVA_EXE=java.exe
++%JAVA_EXE% -version >NUL 2>&1
++if "%ERRORLEVEL%" == "0" goto init
++
++echo.
++echo ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.
++echo.
++echo Please set the JAVA_HOME variable in your environment to match the
++echo location of your Java installation.
++
++goto fail
++
++:findJavaFromJavaHome
++set JAVA_HOME=%JAVA_HOME:"=%
++set JAVA_EXE=%JAVA_HOME%/bin/java.exe
++
++if exist "%JAVA_EXE%" goto init
++
++echo.
++echo ERROR: JAVA_HOME is set to an invalid directory: %JAVA_HOME%
++echo.
++echo Please set the JAVA_HOME variable in your environment to match the
++echo location of your Java installation.
++
++goto fail
++
++:init
++@rem Get command-line arguments, handling Windowz variants
++
++if not "%OS%" == "Windows_NT" goto win9xME_args
++if "%@eval[2+2]" == "4" goto 4NT_args
++
++:win9xME_args
++@rem Slurp the command line arguments.
++set CMD_LINE_ARGS=
++set _SKIP=2
++
++:win9xME_args_slurp
++if "x%~1" == "x" goto execute
++
++set CMD_LINE_ARGS=%*
++goto execute
++
++:4NT_args
++@rem Get arguments from the 4NT Shell from JP Software
++set CMD_LINE_ARGS=%$
++
++:execute
++@rem Setup the command line
++
++set CLASSPATH=%APP_HOME%\gradle\wrapper\gradle-wrapper.jar
++
++@rem Execute Gradle
++"%JAVA_EXE%" %DEFAULT_JVM_OPTS% %JAVA_OPTS% %GRADLE_OPTS% "-Dorg.gradle.appname=%APP_BASE_NAME%" -classpath "%CLASSPATH%" org.gradle.wrapper.GradleWrapperMain %CMD_LINE_ARGS%
++
++:end
++@rem End local scope for the variables with windows NT shell
++if "%ERRORLEVEL%"=="0" goto mainEnd
++
++:fail
++rem Set variable GRADLE_EXIT_CONSOLE if you need the _script_ return code instead of
++rem the _cmd.exe /c_ return code!
++if  not "" == "%GRADLE_EXIT_CONSOLE%" exit 1
++exit /b 1
++
++:mainEnd
++if "%OS%"=="Windows_NT" endlocal
++
++:omega
+Index: gradle.properties
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- gradle.properties	(revision )
++++ gradle.properties	(revision )
+@@ -0,0 +1,18 @@
++# Project-wide Gradle settings.
++
++# IDE (e.g. Android Studio) users:
++# Gradle settings configured through the IDE *will override*
++# any settings specified in this file.
++
++# For more details on how to configure your build environment visit
++# http://www.gradle.org/docs/current/userguide/build_environment.html
++
++# Specifies the JVM arguments used for the daemon process.
++# The setting is particularly useful for tweaking memory settings.
++# Default value: -Xmx10248m -XX:MaxPermSize=256m
++# org.gradle.jvmargs=-Xmx2048m -XX:MaxPermSize=512m -XX:+HeapDumpOnOutOfMemoryError -Dfile.encoding=UTF-8
++
++# When configured, Gradle will run in incubating parallel mode.
++# This option should only be used with decoupled projects. More details, visit
++# http://www.gradle.org/docs/current/userguide/multi_project_builds.html#sec:decoupled_projects
++# org.gradle.parallel=true
+\ No newline at end of file
+Index: .idea/vcs.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/vcs.xml	(revision )
++++ .idea/vcs.xml	(revision )
+@@ -0,0 +1,6 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<project version="4">
++  <component name="VcsDirectoryMappings">
++    <mapping directory="" vcs="Git" />
++  </component>
++</project>
+\ No newline at end of file
+Index: contributors.txt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- contributors.txt	(revision )
++++ contributors.txt	(revision )
+@@ -0,0 +1,1 @@
++"Nicolaz Perez" 

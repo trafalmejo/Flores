@@ -2,34 +2,48 @@ package mundo;
 
 import android.graphics.Bitmap;
 
+import java.io.File;
+
 /**
  * Created by GILBERTO on 28/02/2016.
  */
 public class Flor
 {
-    private String nombre;
+    private String imagenURL;
+    private File imagen;
+    private Categoria categoria;
 
-    private String nombreCientifico;
+    public Flor(String url, Categoria cat ) {
+        this.imagenURL = url;
+        if(!imagenURL.equals("")){
+            imagen = new File(imagenURL);
+        }
+        this.categoria = cat;
 
-    public Flor(String nombre, String nombreCientifico) {
-        this.nombre = nombre;
-        this.nombreCientifico = nombreCientifico;
     }
 
-    public String getNombre() {
-        return nombre;
+
+    public String getImagenURL() {
+        return imagenURL;
     }
 
-    public void setNombre(String nombre) {
-        this.nombre = nombre;
+    public void setImagenURL(String imagenURL) {
+        this.imagenURL = imagenURL;
     }
 
-    public String getNombreCientifico() {
-        return nombreCientifico;
+    public File getImagen() {
+        return imagen;
     }
 
-    public void setNombreCientifico(String nombreCientifico) {
-        this.nombreCientifico = nombreCientifico;
+    public void setImagen(File imagen) {
+        this.imagen = imagen;
     }
 
+    public Categoria getCategoria() {
+        return categoria;
+    }
+
+    public void setCategoria(Categoria categoria) {
+        this.categoria = categoria;
+    }
 }

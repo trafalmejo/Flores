@@ -46,7 +46,7 @@ public class ColeccionFlores extends AppCompatActivity {
         Cursor cursor = datos.rawQuery(consulta,null);
         while(cursor.moveToNext())
         {
-            mAppList.add(new Flor(cursor.getString(cursor.getColumnIndex("NOMBRE")), cursor.getString(cursor.getColumnIndex("NOM_CIENTIFICO_2"))));
+            //mAppList.add(new Flor(cursor.getString(cursor.getColumnIndex("NOMBRE")), cursor.getString(cursor.getColumnIndex("NOM_CIENTIFICO_2"))));
         }
         cursor.close();
         datos.close();
@@ -148,8 +148,8 @@ public class ColeccionFlores extends AppCompatActivity {
     }
     private void irFlorVista(Flor item) {
         Intent intent = new Intent(this, FlorVista.class);
-        intent.putExtra("NombreFlor", item.getNombre());
-        intent.putExtra("NombreFlorCientifico", item.getNombreCientifico());
+       // intent.putExtra("NombreFlor", item.getNombre());
+       // intent.putExtra("NombreFlorCientifico", item.getNombreCientifico());
         startActivity(intent);
     }
     private void delete(ApplicationInfo item) {
@@ -186,8 +186,8 @@ public class ColeccionFlores extends AppCompatActivity {
             }
             ViewHolder holder = (ViewHolder) convertView.getTag();
             Flor item = getItem(position);
-            holder.flor_name.setText(item.getNombre());
-            holder.flor_name_cientifico.setText(item.getNombreCientifico());
+           // holder.flor_name.setText(item.getNombre());
+           // holder.flor_name_cientifico.setText(item.getNombreCientifico());
             holder.iv_icon.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

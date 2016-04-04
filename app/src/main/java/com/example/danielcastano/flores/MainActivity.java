@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -24,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -41,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
     String mCurrentPhotoPath;
     private ImageView imageView;
     private int contador;
-    protected String lastPhoto;
+    public String lastPhoto;
     private Flock flock;
 
     @Override
@@ -50,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         //Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         //setSupportActionBar(toolbar);
-         imageView = (ImageView) findViewById(R.id.imageView);
+        imageView = (ImageView) findViewById(R.id.imageView);
         contador = ((mundo.Flock)this.getApplication()).getContador();
 
         lastPhoto = "";
@@ -99,7 +101,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void dispatchTakePictureIntent(View view) {
-        ((mundo.Flock)this.getApplication()).setContador(((mundo.Flock)this.getApplication()).getContador()+1);
+
+        ((mundo.Flock)this.getApplication()).setContador(((mundo.Flock) this.getApplication()).getContador() + 1);
 
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
@@ -115,8 +118,8 @@ public class MainActivity extends AppCompatActivity {
             // Continue only if the File was successfully created
             if (photoFile != null) {
                 takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(photoFile));
-
                 startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
+                flock.setImagen(photoFile);
             }
         }
     }
@@ -130,7 +133,7 @@ public class MainActivity extends AppCompatActivity {
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = "file:" + image.getAbsolutePath();
         lastPhoto = image.getAbsolutePath();
-        Log.d("Direccion0: ", lastPhoto);
+        Log.d("Direccion: ", lastPhoto);
 
         galleryAddPic();
         return image;
@@ -140,57 +143,44 @@ public class MainActivity extends AppCompatActivity {
 
         if (requestCode == REQUEST_TAKE_PHOTO && resultCode == RESULT_OK) {
 
-
-            Bitmap test1 = ((BitmapDrawable) getResources().getDrawable(R.drawable.rosa)).getBitmap();
-            Bitmap test2 = ((BitmapDrawable) getResources().getDrawable(R.drawable.girasol)).getBitmap();
-            Bitmap test3 = ((BitmapDrawable) getResources().getDrawable(R.drawable.cartucho)).getBitmap();
-
             Bitmap imagen = BitmapFactory.decodeFile(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES) + "/Flores/" + ((mundo.Flock) this.getApplication()).getContador() + ".jpg");
+            String mensaje = leerFloor(imagen);
 
-            double dif1 = flock.compareImages(test1, imagen);
-            double dif2 = flock.compareImages(test2, imagen);
-            double dif3 = flock.compareImages(test3, imagen);
-            String mensaje = "";
-            if(dif1 < dif2 && dif1 < dif3) {
-                mensaje = "Su flor corresponde a una ROSA";
-                Log.d("dif: ", dif1+"");
-                if(dif1 > umbral){
-                    mensaje = "No pudimos reconocer su Flor";
-                }
-                //flock.agregarFlorEncontrada(1, test1);
-            }
-            else if(dif2 < dif1 && dif2 < dif3)
-            {
-                mensaje = "Su flor corresponde a un GIRASOL";
-                Log.d("dif: ", dif2+"");
-                if(dif2 > umbral){
-                    mensaje = "No pudimos reconocer su Flor";
-                }
-                //flock.agregarFlorEncontrada(1, test2);
-            }
-            else if (dif3 < dif1 && dif3 < dif2)
-            {
-                mensaje = "Su flor corresponde a un CARTUCHO";
-                Log.d("dif: ", dif3+"");
-                if(dif3 > umbral){
-                    mensaje = "No pudimos reconocer su Flor, intentelo más tarde";
-                }
-                //flock.agregarFlorEncontrada(1, test3);
 
-            }
-
-            //imageView.setImageBitmap(imagen);
-
-            Context c = getApplicationContext();
-            CharSequence text = mensaje;
-            int duration = Toast.LENGTH_SHORT;
-
-            Toast toast = Toast.makeText(c, text, duration);
-            toast.show();
 
 
         }
     }
+    public String leerFloor(Bitmap imagen){
+        //GET
+        //new HttpAsyncTask().execute("http://garden.vsapi01.com/api-search/by-url?url="+ROSA+"&apikey="+API_KEY);
+        //POST
+        new HttpAsyncTask().execute("http://garden.vsapi01.com/api-search?apikey="+flock.API_KEY, lastPhoto);
+        return flock.getResultado();
+
+    }
+    private class HttpAsyncTask extends AsyncTask<String, Void, String> {
+        @Override
+
+        protected String doInBackground(String... urls) {
+
+            //return GET(urls[0]);
+            return flock.POST(urls[0],lastPhoto);
+        }
+        // onPostExecute displays the results of the AsyncTask.
+        @Override
+        protected void onPostExecute(String result) {
+            //Toast.makeText(getBaseContext(), "Received!", Toast.LENGTH_LONG).show();
+            //Log.d("RESPONSE", result);
+            Context c = getApplicationContext();
+            CharSequence text = flock.getResultado();
+            int duration = Toast.LENGTH_SHORT;
+            Toast toast = Toast.makeText(c, text, duration);
+            toast.show();
+
+        }
+    }
+
 
 
 }
